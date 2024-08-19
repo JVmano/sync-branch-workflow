@@ -26,6 +26,14 @@ jobs:
   
       - name: Sync staging branch from main
         run: |
+          git fetch origin
           git checkout staging
+          git reset --hard origin/staging
           git merge origin/main
-          git push origin staging
+          git push origin staging || {
+            echo "Push failed. The remote branch might have new commits."
+            echo "Pulling latest changes and trying again..."
+            git pull --rebase origin staging
+            git merge origin/main
+            git push origin staging
+          }
